@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User 
 
 class Class(models.Model):
     cid = models.CharField(max_length=16, primary_key=True)
@@ -7,19 +8,19 @@ class Class(models.Model):
     room = models.CharField(max_length=64)
     ctime = models.CharField(max_length=64)
     info = models.TextField(blank=True, null=True)
-
+    
     def __str__(self):
         return self.cname
 
 class Student(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile') # 与User一一映射，有name，email和password
     sid = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=64)
     cur_major = models.CharField(max_length=64)
-    email = models.EmailField(blank=True, null=True)
     info = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return self.user.username
+
 
 class StudentClass(models.Model):
     sid = models.ForeignKey(Student, on_delete=models.CASCADE)

@@ -128,7 +128,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 INSTALLED_APPS += [
     'corsheaders',
+    'rest_framework_simplejwt',
 ]
+
+# 设置登陆令牌
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
 
 MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
 

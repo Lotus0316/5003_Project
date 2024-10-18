@@ -1,8 +1,15 @@
 from django.urls import path
-from .views import class_list, student_list, team_list
+from . import views
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 urlpatterns = [
-    path('classes/', class_list, name='class-list'),
-    path('students/', student_list, name='student-list'),
-    path('teams/', team_list, name='team-list'),
+    path('classes/', views.class_list, name='class-list'),
+    path('students/', views.student_list, name='student-list'),
+    path('teams/', views.team_list, name='team-list'),
+    path('login/', views.login, name='login'),
+    path('student/<int:sid>/', views.get_student_info, name='get_student_info'),
 ]
+
