@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS "Student_Class" (
 	"cid"	VARCHAR(16),
 	PRIMARY KEY("sid","cid"),
 	FOREIGN KEY("sid") REFERENCES "Student"("sid")
+	FOREIGN KEY("cid") REFERENCES "Class"("cid")
 );
 CREATE TABLE IF NOT EXISTS "Team" (
 	"tid"	INTEGER,
