@@ -3,12 +3,15 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from rest_framework_simplejwt.authentication import JWTAuthentication
 # Login检查
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
+
 from .models import Class, Student, Team
 from .serializers import ClassSerializer, StudentSerializer, TeamSerializer
+
 
 # Login API
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -36,12 +39,14 @@ def login(request):
     if user is None:
         try:
             student = Student.objects.get(sid=identifier)
-            user = student.user  # 获取 Student 对应的 User
+            user = student.user
             if not user.check_password(password):
                 return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 # 创建JWT令牌
                 refresh = RefreshToken.for_user(user)
+                refresh['sid'] = user.student_profile.sid
+
                 return Response({
                     'message': 'Login successful',
                     'sid': student.sid,
@@ -54,6 +59,7 @@ def login(request):
 
     # 创建JWT令牌
     refresh = RefreshToken.for_user(user)
+    refresh['sid'] = user.student_profile.sid
     return Response({
         'message': 'Login successful',
         'sid': user.student_profile.sid,
@@ -67,7 +73,24 @@ def login(request):
 @permission_classes([IsAuthenticated])
 def get_student_info(request, sid):
     try:
+        # 获取要访问的学生对象
         student = Student.objects.get(sid=sid)
+        
+        # 自定义权限检查
+        jwt_authenticator = JWTAuthentication()
+        try:
+            # 从请求中提取令牌并验证用户
+            token = request.headers.get('Authorization').split(' ')[1]
+            validated_token = jwt_authenticator.get_validated_token(token)
+            current_user = jwt_authenticator.get_user(validated_token)
+        except Exception:
+            return Response({'error': 'Invalid token or unauthorized access'}, status=status.HTTP_403_FORBIDDEN)
+
+        # 确保请求的用户是该学生的所有者
+        if student.user != current_user:
+            return Response({'error': 'You do not have permission to access this student information', 'csid': current_user.student_profile.sid}, status=status.HTTP_403_FORBIDDEN)
+
+        # 如果权限检查通过，返回学生信息
         student_data = {
             'sid': student.sid,
             'name': student.user.username,
@@ -75,8 +98,10 @@ def get_student_info(request, sid):
             'email': student.user.email,
         }
         return Response(student_data, status=status.HTTP_200_OK)
+
     except Student.DoesNotExist:
         return Response({'error': 'Student not found'}, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['GET'])
 def class_list(request):

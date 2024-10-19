@@ -19,9 +19,9 @@ const routes = [
     }
   },
   {
-    path: '/no-permission',
+    path: '/no-permission/:reason?/:sid?', // 使用动态参数 reason 和 sid，使用 ? 表示它们是可选的
     name: 'NoPermission',
-    component: NoPermission // 添加无权限页面的路由
+    component: NoPermission
   },
   {
     path: '/:pathMatch(.*)*',
@@ -39,12 +39,12 @@ router.beforeEach((to, from, next) => {
   // 检查路由是否需要认证
   if (to.meta.requiresAuth) {
     // 检查用户是否已登录（例如从 localStorage 获取登录标志）
-    const isAuthenticated = localStorage.getItem('isAuthenticated');
+    const isAuthenticated = sessionStorage.getItem('isAuthenticated');
 
     if (isAuthenticated) {
       next(); // 如果已登录，允许访问
     } else {
-      next({ name: 'NoPermission' }); // 如果未登录，重定向到登录页面
+      next({ name: 'NoPermission', params: { reason: 'login'} }); // 如果未登录，重定向到登录页面
     }
   } else {
     next(); // 如果不需要认证，直接访问
