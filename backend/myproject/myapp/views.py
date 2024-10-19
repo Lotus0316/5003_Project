@@ -55,7 +55,7 @@ def login(request):
                     'access': str(refresh.access_token)
                 }, status=status.HTTP_200_OK)
         except Student.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_404_NOT_FOUND)
 
     # 创建JWT令牌
     refresh = RefreshToken.for_user(user)

@@ -84,7 +84,7 @@ export default {
         if (error.response && error.response.data && error.response.data.error) {
           this.errorMessage = error.response.data.error;
         } else {
-          this.errorMessage = 'An error occurred. Please try again.';
+          this.errorMessage = 'Invalid credentials. Please try again.';
         }
       }
     }
