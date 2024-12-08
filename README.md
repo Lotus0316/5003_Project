@@ -7,12 +7,12 @@
 - **SuperUser:**
   - haoyuan pw: 123456（通过localhost:8888/admin管理后台）
 - **运行：**
-  - 根目录（backend\myproject\）下运行`python manage.py runserver`
+  - 根目录（backend\myproject\）下运行`python manage.py runserver 8888`
 
 ### 前端部分
 
 - **运行：**
-  - `npm run serve 8888`
+  - `npm run serve`
 
 ### 测试数据
 
