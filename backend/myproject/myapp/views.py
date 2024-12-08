@@ -182,7 +182,7 @@ def create_team(request):
             info=description,
             leader=current_user.student_profile,
             cid=course,
-            is_recruiting=True
+            is_recruiting=False # Defaulting is False initially
         )
 
         TeamMember.objects.create(

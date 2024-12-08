@@ -1,12 +1,18 @@
 <template>
   <div id="app">
-    <router-view></router-view> <!-- 用于显示匹配的路由组件 -->
+    <router-view></router-view>
+    <!-- <test /> -->
   </div>
 </template>
 
 <script>
+import test from './components/test.vue';
+
 export default {
   name: 'App',
+  components: {
+    test
+  }
 };
 </script>
 
