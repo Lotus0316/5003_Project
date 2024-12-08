@@ -5,14 +5,14 @@
 ### 后端部分
 
 - **SuperUser:**
-  - haoyuan pw: 123456（通过localhost:8000/admin管理后台）
+  - haoyuan pw: 123456（通过localhost:8888/admin管理后台）
 - **运行：**
   - 根目录（backend\myproject\）下运行`python manage.py runserver`
 
 ### 前端部分
 
 - **运行：**
-  - `npm run serve`
+  - `npm run serve 8888`
 
 ### 测试数据
 
@@ -98,3 +98,9 @@ course-team-system/
   - 如果身份验证成功，则生成 JWT 令牌，并转到学生信息页面
   - 如果用户试图通过 URL 访问其他学生的信息，则返回无权限的错误页面，并重定向到自己的学生信息
   - 如果未登录用户通过 URL 直接访问学生信息页面，则会被重定向到错误页面，提示需要登录
+
+
+### TODO：
+ - 修改个人信息
+ - 修改队伍信息
+ - 登出

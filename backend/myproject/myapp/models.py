@@ -34,7 +34,7 @@ class Team(models.Model):
     tname = models.CharField(max_length=64)
     leader = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='teams_led')
     cid = models.ForeignKey(Class, on_delete=models.CASCADE)
-    is_recruiting = models.BooleanField()
+    is_recruiting = models.BooleanField(default=False)
     info = models.TextField(blank=True, null=True)
 
     def __str__(self):

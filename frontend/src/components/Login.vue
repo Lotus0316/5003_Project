@@ -1,96 +1,121 @@
 <template>
-  <div class="login-container">
-    <h1>Login</h1>
-    <form @submit.prevent="handleLogin">
-      <div class="form-group">
-        <label for="identifier">Account</label>
-        <input
-          type="text"
-          id="identifier"
-          v-model="identifier"
-          placeholder="Enter your SID, username or Email"
-          required
-        />
+    <div class="login-container">
+      <h1>Login</h1>
+      <form @submit.prevent="handleLogin">
+        <div class="form-group">
+          <label for="identifier">Account</label>
+          <input
+            type="text"
+            id="identifier"
+            v-model="identifier"
+            placeholder="Enter your SID, username or Email"
+            required
+            :disabled="isLoading"
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            v-model="password"
+            placeholder="Enter your password"
+            required
+            :disabled="isLoading"
+          />
+        </div>
+        <button type="submit" :disabled="isLoading">
+          {{ isLoading ? 'Logging in...' : 'Login' }}
+        </button>
+      </form>
+      <div v-if="loginMessage" class="success-message">
+        {{ loginMessage }}
       </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          v-model="password"
-          placeholder="Enter your password"
-          required
-        />
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
       </div>
-      <button type="submit">Login</button>
-    </form>
-
-    <!-- 显示登录成功或失败的消息 -->
-    <div v-if="loginMessage" class="success-message">
-      {{ loginMessage }}
     </div>
-    <div v-if="errorMessage" class="error-message">
-      {{ errorMessage }}
-    </div>
-  </div>
-</template>
-
-<script>
-import axios from 'axios';
-
-export default {
-  name: 'Login',
-  data() {
-    return {
-      identifier: '', // 用户输入的 SID、用户名或 Email
-      password: '', // 用户输入的密码
-      errorMessage: '', // 登录失败的错误信息
-      loginMessage: '' // 登录成功后的消息
-    };
-  },
-  methods: {
-    async handleLogin() {
-      try {
-        // 发送登录请求到 Django 后端获取令牌
-        const response = await axios.post('http://127.0.0.1:8000/api/login/', {
-          identifier: this.identifier,
-          password: this.password
-        });
-
-        // 登录成功后的处理，获取访问令牌和其他信息
-        const { access, refresh, sid, username } = response.data;
-
-        // 将令牌保存到 sessionStorage
-        if (access && refresh) {
+  </template>
+  
+  <script>
+  import axios from 'axios';
+  import { API_BASE_URL } from '@/config/api';
+  
+  export default {
+    name: 'Login',
+    data() {
+      return {
+        identifier: '',
+        password: '',
+        errorMessage: '',
+        loginMessage: '',
+        isLoading: false
+      };
+    },
+    methods: {
+      async handleLogin() {
+        // 重置消息
+        this.errorMessage = '';
+        this.loginMessage = '';
+        this.isLoading = true;
+  
+        try {
+          // 验证表单
+          if (!this.identifier || !this.password) {
+            throw new Error('Please enter both username and password');
+          }
+  
+          // 发送登录请求
+          const response = await axios.post(`${API_BASE_URL}/api/login/`, {
+            identifier: this.identifier,
+            password: this.password
+          });
+  
+          // 验证响应数据
+          const { access, refresh, sid, username } = response.data;
+          if (!access || !refresh || !sid || !username) {
+            throw new Error('Invalid server response');
+          }
+  
+          // 存储用户信息
           sessionStorage.setItem('access_token', access);
           sessionStorage.setItem('refresh_token', refresh);
-          sessionStorage.setItem('isAuthenticated', 'true'); // 添加前端守卫认证标志
-        }
-
-        // 清空错误信息
-        this.errorMessage = '';
-
-        // 显示登录成功信息
-        this.loginMessage = `Login successful. Welcome, ${username}!`;
-
-        // 跳转到 StudentInfo 页面，传递 sid 作为参数
-        this.$router.push({ name: 'StudentInfo', params: { sid } });
-      } catch (error) {
-        // 处理登录失败的情况
-        this.identifier = '';
-        this.password = '';
-        this.loginMessage = ''; // 清空成功登录的消息
-
-        if (error.response && error.response.data && error.response.data.error) {
-          this.errorMessage = error.response.data.error;
-        } else {
-          this.errorMessage = 'Invalid credentials. Please try again.';
+          sessionStorage.setItem('isAuthenticated', 'true');
+          sessionStorage.setItem('user_sid', sid.toString());
+          sessionStorage.setItem('username', username);
+  
+          // 显示成功消息
+          this.loginMessage = `Login successful. Welcome, ${username}!`;
+  
+          // 延迟跳转以显示成功消息
+          setTimeout(() => {
+            this.$router.push({ 
+              name: 'StudentInfo', 
+              params: { sid: sid.toString() } 
+            });
+          }, 500);
+  
+        } catch (error) {
+          // 清空输入
+          this.password = '';
+          
+          if (error.response) {
+            // 服务器响应的错误
+            this.errorMessage = error.response.data.error || 'Login failed. Please try again.';
+          } else if (error.request) {
+            // 请求未收到响应
+            this.errorMessage = 'Network error. Please check your connection.';
+          } else {
+            // 其他错误
+            this.errorMessage = error.message || 'An error occurred. Please try again.';
+          }
+        } finally {
+          this.isLoading = false;
         }
       }
     }
-  }
-};
-</script>
+  };
+  </script>
 
 
 <style scoped>

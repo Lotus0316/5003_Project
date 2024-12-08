@@ -2,8 +2,9 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-# db.db
+db.db
 node_modules/
+frontend/dist/
 *.log
 .env
 *.pid
