@@ -58,7 +58,7 @@
                     </div>
                     <div class="modal-buttons">
                         <button type="submit">Submit</button>
-                        <button type="button" @click="closeModal">Cancel</button>
+                        <button class="cancel-btn" type="button" @click="closeModal">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -270,15 +270,41 @@
   }
   
   .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
+      background-color: rgba(255, 255, 255, 0.822);
+      padding: 0 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 100%;
+  }
+
+  .form-group {
+      margin-bottom: 15px;
+  }
+
+  .form-group label {
+      display: block;
+      margin-bottom: 5px;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+      width: 97%;
+      padding: 8px;
+      border: 1px solid #ddddddf6;
+      border-radius: 4px;
+  }
+
+  .modal-buttons {
+      display: flex;
+      justify-content: flex-start;
+      gap: 10px;
+      margin: 10px 0 20px 0;
   }
 
   button {
-    padding: 8px 16px;
+    padding: 5px 10px;
     background-color: #007bff;
     color: white;
     border: none;
@@ -321,23 +347,6 @@
   .form-group label {
     display: block;
     margin-bottom: 5px;
-  }
-  
-  .form-group select,
-  .form-group textarea {
-    width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-  }
-  
-  .modal-buttons {
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .modal-buttons button {
-    margin-left: 10px;
-    padding: 8px 16px;
   }
 
   .cancel-btn {

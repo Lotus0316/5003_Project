@@ -503,7 +503,7 @@ export default {
 }
 
 button {
-    padding: 8px 16px;
+    padding: 5px 10px;
     background-color: #007bff;
     color: white;
     border: none;
@@ -606,6 +606,7 @@ button:hover {
     background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
+    align-items: center;
 }
 
 .modal-content {
@@ -614,7 +615,7 @@ button:hover {
     border-radius: 8px;
     width: 90%;
     max-width: 500px;
-    max-height: 70%;
+    max-height: 100%;
 }
 
 .form-group {
@@ -637,9 +638,9 @@ button:hover {
 
 .modal-buttons {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: 10px;
-    margin-top: 20px;
+    margin: 10px 0 20px 0;
 }
 
 .modal-buttons button {

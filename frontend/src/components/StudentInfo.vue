@@ -8,45 +8,55 @@
         <p><strong>Email:</strong> {{ student.email }}</p>
       </div>
       <div class="course-management">
-        <!-- <div class="section-header">
-          <h2>Course Management</h2>
-          <div class="button-group">
-            <button @click="showAddModal = true">Add Course</button>
-            
-          </div>
-        </div> -->
-
         <div class="my-courses" v-if="myCourses.length">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h1 style="font-size: x-large;">My Courses</h1>
-            <button @click="openEnrollModal">Enroll Course</button>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h1 style="font-size: x-large;">My Courses</h1>
+              <button @click="openEnrollModal">Enroll Course</button>
+            </div>
+            <table class="courses-table">
+              <thead>
+                <tr>
+                  <th>Course</th>
+                  <th>Time</th>
+                  <th>Room</th>
+                  <th>Semester</th>
+                  <th>Info</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="course in myCourses" :key="course.cid">
+                  <td>{{ course.cname }}</td>
+                  <td>{{ course.ctime }}</td>
+                  <td>{{ course.room }}</td>
+                  <td>{{ course.semester }}</td>
+                  <td>{{ course.info }}</td>
+                  <td>
+                    <button @click="dropCourse(course.cid)" class="btn btn-drop">Drop</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <table class="courses-table">
-            <thead>
-              <tr>
-                <th>Course</th>
-                <th>Time</th>
-                <th>Room</th>
-                <th>Semester</th>
-                <th>Info</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="course in myCourses" :key="course.cid">
-                <td>{{ course.cname }}</td>
-                <td>{{ course.ctime }}</td>
-                <td>{{ course.room }}</td>
-                <td>{{ course.semester }}</td>
-                <td>{{ course.info }}</td>
-                <td>
-                  <button @click="dropCourse(course.cid)" class="btn btn-drop">Drop</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div v-else>
+            <div style=" width: 650px; display: flex; justify-content: space-between; align-items: center;">
+              <h1 style="font-size: x-large;">My Courses</h1>
+              <button @click="openEnrollModal">Enroll Course</button>
+            </div>
+            <table class="courses-table">
+              <thead>
+                <tr>
+                  <th>Course</th>
+                  <th>Time</th>
+                  <th>Room</th>
+                  <th>Semester</th>
+                  <th>Info</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+            </table>
+          </div>
         </div>
-      </div>
     </div>
 
     <div v-if="showAddModal" class="modal-overlay">
@@ -317,6 +327,10 @@
   </script>
   
   <style scoped>
+  .my-courses {
+    width: 650px;
+  }
+
   .hori-wrap {
     display: flex;
   }
@@ -384,6 +398,7 @@
         background-color: rgba(0, 0, 0, 0.5);
         display: flex;
         justify-content: center;
+        align-items: center;
     }
 
     .modal-content {
@@ -416,7 +431,7 @@
     }
 
     .btn {
-        padding: 10px 20px;
+        padding: 5px 10px;
         background-color: #007bff;
         color: white;
         border: none;

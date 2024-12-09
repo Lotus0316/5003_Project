@@ -7,7 +7,6 @@
             <el-container>
             <el-main class="content">
                 <router-view/>
-                
             </el-main>
             </el-container>
             <el-footer style="display: flex; justify-content: end; align-items: flex-start">
