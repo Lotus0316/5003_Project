@@ -1,14 +1,14 @@
 <template>
     <div class="team-request-container">
         <div class="header">
-            <h1>Team Request Dashboard</h1>
+            <h1 style="font-size: x-large;">Team Request Dashboard</h1>
             <div>
               <button style="margin: 10px;" @click="showCreateRequestModal">Create Request</button>
             </div>
         </div>
 
         <div class="requests-list">
-            <h2>Active Team Requests</h2>
+            <h3>Active Team Requests</h3>
             <table class="requests-table">
                 <thead>
                     <tr>

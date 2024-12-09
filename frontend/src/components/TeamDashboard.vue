@@ -1,13 +1,13 @@
 <template>
     <div class="team-dashboard-container">
         <div class="header">
-            <h1>Team Dashboard</h1>
+            <h1 style="font-size: x-large;">Team Dashboard</h1>
             <div>
                 <button style="margin: 10px;" @click="showCreateTeamModal">Create New Team</button>
             </div>
         </div>
         <div class="my-team-section">
-            <h2>My Teams</h2>
+            <h3>My Teams</h3>
             <table class="teams-table">
                 <thead>
                     <tr>
@@ -48,7 +48,7 @@
             </table>
         </div>
         <div class="available-teams-section">
-            <h2>Available Teams</h2>
+            <h3>Available Teams</h3>
             <table class="teams-table">
                 <thead>
                     <tr>
@@ -415,7 +415,7 @@ export default {
                 alert(errorMessage);
             }
         },
-        
+
         async toggleRecruiting(teamId) {
             if (!confirm('Are you sure you want to toggle the recruiting status of this team?')) {
                 return;
@@ -474,7 +474,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    /* margin-bottom: 10px; */
 }
 
 .btn-info {
@@ -569,13 +569,6 @@ button:hover {
 }
 .badge:hover {
     opacity: 0.8;
-}
-.team-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    background: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .team-header {

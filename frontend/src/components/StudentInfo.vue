@@ -1,45 +1,51 @@
 <template>
-    <div class="student-info-container">
-      <h1>Welcome, {{ student.name }}</h1>
-      <p><strong>Student ID:</strong> {{ student.sid }}</p>
-      <p><strong>Major:</strong> {{ student.cur_major }}</p>
-      <p><strong>Email:</strong> {{ student.email }}</p>
-      
-     <div class="course-management">
-      <div class="section-header">
-        <h2>Course Management</h2>
-        <div class="button-group">
-          <button @click="showAddModal = true">Add Course</button>
-          <button @click="openEnrollModal">Enroll Course</button>
-        </div>
+  <div style="max-width: 1600px;">
+    <div class="hori-wrap">
+      <div class="student-info-container">
+        <h1 style="font-size: x-large;">Welcome, {{ student.name }}</h1>
+        <p><strong>Student ID:</strong> {{ student.sid }}</p>
+        <p><strong>Major:</strong> {{ student.cur_major }}</p>
+        <p><strong>Email:</strong> {{ student.email }}</p>
       </div>
+      <div class="course-management">
+        <!-- <div class="section-header">
+          <h2>Course Management</h2>
+          <div class="button-group">
+            <button @click="showAddModal = true">Add Course</button>
+            
+          </div>
+        </div> -->
 
-      <div class="my-courses" v-if="myCourses.length">
-        <h3>My Courses</h3>
-        <table class="courses-table">
-          <thead>
-            <tr>
-              <th>Course</th>
-              <th>Time</th>
-              <th>Room</th>
-              <th>Semester</th>
-              <th>Info</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="course in myCourses" :key="course.cid">
-              <td>{{ course.cname }}</td>
-              <td>{{ course.ctime }}</td>
-              <td>{{ course.room }}</td>
-              <td>{{ course.semester }}</td>
-              <td>{{ course.info }}</td>
-              <td>
-                <button @click="dropCourse(course.cid)" class="btn btn-drop">Drop</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="my-courses" v-if="myCourses.length">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="font-size: x-large;">My Courses</h1>
+            <button @click="openEnrollModal">Enroll Course</button>
+          </div>
+          <table class="courses-table">
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>Time</th>
+                <th>Room</th>
+                <th>Semester</th>
+                <th>Info</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="course in myCourses" :key="course.cid">
+                <td>{{ course.cname }}</td>
+                <td>{{ course.ctime }}</td>
+                <td>{{ course.room }}</td>
+                <td>{{ course.semester }}</td>
+                <td>{{ course.info }}</td>
+                <td>
+                  <button @click="dropCourse(course.cid)" class="btn btn-drop">Drop</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -84,10 +90,10 @@
         </form>
       </div>
     </div>
-
+    
     <div v-if="showEnrollModal" class="modal-overlay">
-      <div class="modal-content">
-        <h2>Enroll Course</h2>
+      <div class="modal-content" style="display: flexbox;">
+        <h2 style="margin-bottom: 10px;">Enroll Course</h2>
         <form @submit.prevent="enrollCourse">
           <div class="form-group">
             <label for="courseSelect">Select Course</label>
@@ -102,12 +108,12 @@
           </div>
           <div class="modal-buttons">
             <button type="submit">Enroll</button>
-            <button type="button" @click="closeEnrollModal">Cancel</button>
+            <button type="button" class="btn-cancel" @click="closeEnrollModal">Cancel</button>
           </div>
         </form>
       </div>
     </div>
-    </div>
+  </div>
   </template>
   
   <script>
@@ -150,18 +156,6 @@
     },
 
     methods: {
-        goToTeamDashboard() {
-            this.$router.push({
-                name: 'TeamDashboard',
-                params: { sid: this.student.sid }
-            });
-        },
-        goToTeamRequest() {
-            this.$router.push({
-                name: 'TeamRequest',
-                params: { sid: this.student.sid }
-            });
-        },
         async loadStudentInfo() {
             const sid = this.$route.params.sid;
             const token = sessionStorage.getItem('access_token');
@@ -323,11 +317,20 @@
   </script>
   
   <style scoped>
-  /* .student-info-container {
-    max-width: 600px;
-    margin: 0 auto;
+  .hori-wrap {
+    display: flex;
+  }
+  .student-info-container {
+    margin: 0 40px auto auto;
     padding: 20px;
-  } */
+  }
+  .student-info-container p {
+    font-size: large;
+  }
+  .course-management {
+    margin: 0 auto auto 40px;
+    padding: 20px;
+  }
   .team-dashboard {
     margin-top: 20px;
     }
@@ -336,23 +339,40 @@
         margin: 20px 0;
     }
     
+    button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
     .button-group {
         display: flex;
         gap: 10px;
         margin-bottom: 20px;
     }
     
-    .course-list {
-        display: grid;
-        gap: 15px;
-        margin-top: 15px;
+    .courses-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background: rgba(255, 255, 255, 0.377);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      overflow: hidden;
     }
-    
-    .course-card {
-        border: 1px solid #ddd;
-        padding: 15px;
-        border-radius: 8px;
-        background-color: #fff;
+
+    .courses-table th,
+    .courses-table td {
+        padding: 10px 10px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
     }
 
     .modal-overlay {
@@ -364,15 +384,35 @@
         background-color: rgba(0, 0, 0, 0.5);
         display: flex;
         justify-content: center;
-        align-items: center;
     }
 
     .modal-content {
-        background-color: white;
-        padding: 20px;
-        border-radius: 8px;
-        width: 90%;
-        max-width: 500px;
+      background-color: rgba(255, 255, 255, 0.822);
+      padding: 0 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 30%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 97%;
+        padding: 8px;
+        margin: 10px 0 20px 0;
+        border: 1px solid #ddddddf6;
+        border-radius: 4px;
+    }
+
+    .modal-buttons {
+        display: flex;
+        justify-content: flex-begin;
+        gap: 10px;
+        margin: 10px 0 20px 0;
     }
 
     .btn {

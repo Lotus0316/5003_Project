@@ -7,15 +7,15 @@
     @select="handleSelect"
     >
     <el-menu-item index="0" class="no-hover">
-        <img style="width: 90px;" src="../img/CityULogo.webp" alt="logo" />
-        <div style="font-size: large; margin-left: 10px; margin-top: 12px; margin-bottom: 0;">
+        <img style="width: 85px;" src="../img/CityULogo.webp" alt="logo" />
+        <div style="font-size: large; margin-left: 8px; margin-top: 10px; margin-bottom: 0;">
         Team Formation System
         </div>
     </el-menu-item>
     <el-menu-item index="1" @click="goToStudentInfo">Student Information</el-menu-item>
     <el-menu-item index="2" @click="goToTeamDashboard">My Team</el-menu-item>
     <el-menu-item index="3" @click="goToTeamRequest">Team Application</el-menu-item>
-    <el-menu-item index="4"><el-badge is-dot :offset="[0, 12]"><el-icon><Notification /></el-icon></el-badge></el-menu-item>
+    <el-menu-item index="4"><el-badge is-dot :offset="[0, 15]"><el-icon style="font-size: 35px;"><Message /></el-icon></el-badge></el-menu-item>
     </el-menu>
 
   </template>
@@ -104,7 +104,7 @@
     // 更新菜单的 active 状态并保存到 sessionStorage
     const updateActiveMenu = (index) => {
         activeIndex.value = index.toString()
-        sessionStorage.setItem('activeIndex', activeIndex.value) // 将选中的 activeIndex 保存到 sessionStorage
+        sessionStorage.setItem('activeIndex', activeIndex.value)
     }
     
     onMounted(async () => {
@@ -150,10 +150,10 @@
     }
 
     #menu {
-        --el-menu-hover-text-color: #7E0C6E;
-        --el-menu-active-color: #7E0C6E;
+        --el-menu-hover-text-color: #3d0f37;
+        --el-menu-active-color: #3d0f37;
         --el-menu-bg-color: #7e0c6f4f;
-        --el-menu-hover-bg-color: #7e0c6f4f;
+        --el-menu-hover-bg-color: #7e0c6f00;
     }
 
   </style>
