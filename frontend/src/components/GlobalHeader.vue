@@ -1,72 +1,160 @@
 <template>
     <el-menu
-      :default-active="activeIndex"
-      id="menu"
-      mode="horizontal"
-      :ellipsis="false"
-      @select="handleSelect"
+    :default-active="activeIndex"
+    id="menu"
+    mode="horizontal"
+    :ellipsis="false"
+    @select="handleSelect"
     >
-      <el-menu-item index="0" class="no-hover">
-        <img
-          style="width: 100px;"
-          src="../img/CityULogo.webp"
-          alt="logo"
-        />
-        <div style="font-size: large;margin-left: 10px;margin-top: 10px;margin-bottom: 0;">Team Formation System</div>
-      </el-menu-item>
-      <el-menu-item index="1">Student Information</el-menu-item>
-      <el-menu-item index="2">My Team</el-menu-item>
-      <el-menu-item index="3">Team Application</el-menu-item>
-      <el-menu-item index="4"><el-icon><Notification /></el-icon></el-menu-item>
+    <el-menu-item index="0" class="no-hover">
+        <img style="width: 100px;" src="../img/CityULogo.webp" alt="logo" />
+        <div style="font-size: large; margin-left: 10px; margin-top: 12px; margin-bottom: 0;">
+        Team Formation System
+        </div>
+    </el-menu-item>
+    <el-menu-item index="1" @click="goToStudentInfo">Student Information</el-menu-item>
+    <el-menu-item index="2" @click="goToTeamDashboard">My Team</el-menu-item>
+    <el-menu-item index="3" @click="goToTeamRequest">Team Application</el-menu-item>
+    <el-menu-item index="4"><el-badge is-dot :offset="[0, 12]"><el-icon><Notification /></el-icon></el-badge></el-menu-item>
     </el-menu>
+
   </template>
   
   <script setup>
-  import { ref } from 'vue'
-  
-  const activeIndex = ref('1')
-  const handleSelect = (key, keyPath) => {
-    console.log(key, keyPath)
-  }
+    import { ref, onMounted } from 'vue'
+    import { useRouter } from 'vue-router'
+    import axios from 'axios'
+    import { API_BASE_URL } from '@/config/api'
+    
+    const student = ref({
+        sid: '',
+        name: '',
+        cur_major: '',
+        email: ''
+    })
+    
+    const router = useRouter()
+    
+    const sid = sessionStorage.getItem('user_sid')
+    const token = sessionStorage.getItem('access_token')
+    
+    const activeIndex = ref(sessionStorage.getItem('activeIndex') || '1')
+    
+    const goToTeamDashboard = () => {
+        if (student.value.sid) {
+        router.push({
+            name: 'TeamDashboard',
+            params: { sid: student.value.sid }
+        })
+        updateActiveMenu(2)
+        }
+    }
+    
+    const goToTeamRequest = () => {
+        if (student.value.sid) {
+        router.push({
+            name: 'TeamRequest',
+            params: { sid: student.value.sid }
+        })
+        updateActiveMenu(3)
+        }
+    }
+    
+    const goToStudentInfo = () => {
+        if (student.value.sid) {
+        router.push({
+            name: 'StudentInfo',
+            params: { sid: student.value.sid }
+        })
+        updateActiveMenu(1)
+        }
+    }
+    
+    const loadStudentInfo = async () => {
+        if (sid && token) {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/api/student/${sid}/`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+            })
+            student.value = response.data
+        } catch (error) {
+            if (error.response) {
+            const status = error.response.status
+            if (status === 403) {
+                const currentSid = error.response.data.csid
+                router.push({
+                name: 'NoPermission',
+                params: { reason: 'unauthorized', sid: currentSid }
+                })
+            } else if (status === 401) {
+                router.push({ name: 'Login' })
+            } else {
+                console.error('Error loading student info:', error)
+            }
+            }
+        }
+        } else {
+        console.error('No SID or token found in sessionStorage')
+        router.push({ name: 'Login' })
+        }
+    }
+    
+    // 更新菜单的 active 状态并保存到 sessionStorage
+    const updateActiveMenu = (index) => {
+        activeIndex.value = index.toString()
+        sessionStorage.setItem('activeIndex', activeIndex.value) // 将选中的 activeIndex 保存到 sessionStorage
+    }
+    
+    onMounted(async () => {
+        await loadStudentInfo()
+    })
   </script>
   
+
   <style>
     .no-hover:hover {
-    background-color: transparent !important; /* 禁用背景颜色变化 */
+        background-color: transparent !important;
     }
 
     .no-hover {
-    pointer-events: none !important; /* 允许点击事件 */
+        pointer-events: none !important;
     }
 
     #menu.el-menu--horizontal > .el-menu-item:nth-child(1) {
-    margin-right: auto;
+        margin-right: auto;
     }
 
     #menu.el-menu--horizontal.el-menu {
-    border-bottom: 1px solid #FFFFFF00 ;
+        border-bottom: 1px solid #FFFFFF00 ;
     }
 
     #menu.el-menu {
-    background-color: #FFFFFF00 ;
-    border-right: 1px solid var(--el-menu-border-color);
-    box-sizing: border-box;
-    list-style: none;
-    margin: 8px 0px ;
-    padding-left: 0;
-    position: relative;
+        background-color: #FFFFFF00 ;
+        border-right: 1px solid var(--el-menu-border-color);
+        box-sizing: border-box;
+        list-style: none;
+        margin: 8px 0px ;
+        padding-left: 0;
+        position: relative;
     }
 
     #menu.el-menu--horizontal>.el-menu-item.is-active {
-    border-bottom: 2px solid #7E0C6E;
-    color: #7E0C6E!important;
+        border-bottom: 2px solid #7E0C6E;
+        color: #7E0C6E!important;
+    }
+
+    #menu.el-menu--horizontal>.el-menu-item {
+        font-size: 17px;
     }
 
     #menu {
-    --el-menu-hover-text-color: #7E0C6E;
-    --el-menu-active-color: #7E0C6E;
-    --el-menu-bg-color: #7e0c6f4f;
-    --el-menu-hover-bg-color: #7e0c6f4f;
+        --el-menu-hover-text-color: #7E0C6E;
+        --el-menu-active-color: #7E0C6E;
+        --el-menu-bg-color: #7e0c6f4f;
+        --el-menu-hover-bg-color: #7e0c6f4f;
     }
+
   </style>
   

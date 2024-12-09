@@ -4,7 +4,6 @@
             <h1>Team Request Dashboard</h1>
             <div>
               <button style="margin: 10px;" @click="showCreateRequestModal">Create Request</button>
-              <button @click="goBack">Back</button>
             </div>
         </div>
 
@@ -215,12 +214,6 @@
                 alert(error.response?.data?.error || 'Failed to cancel request');
             }
         },
-      goBack() {
-        this.$router.push({
-          name: 'StudentInfo',
-          params: { sid: this.studentId }
-        });
-      },
   
       showCreateRequestModal() {
         this.showModal = true;

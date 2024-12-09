@@ -15,44 +15,32 @@
       </div>
 
       <div class="my-courses" v-if="myCourses.length">
-      <h3>My Courses</h3>
-      <table class="courses-table">
-        <thead>
-          <tr>
-            <th>Course</th>
-            <th>Time</th>
-            <th>Room</th>
-            <th>Semester</th>
-            <th>Info</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="course in myCourses" :key="course.cid">
-            <td>{{ course.cname }}</td>
-            <td>{{ course.ctime }}</td>
-            <td>{{ course.room }}</td>
-            <td>{{ course.semester }}</td>
-            <td>{{ course.info }}</td>
-            <td>
-              <button @click="dropCourse(course.cid)" class="btn btn-drop">Drop</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-      <div class="team-dashboard">
-        <h2>Team Dashboard</h2>
-        <button @click="goToTeamDashboard">Go to Team Dashboard</button>
+        <h3>My Courses</h3>
+        <table class="courses-table">
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Time</th>
+              <th>Room</th>
+              <th>Semester</th>
+              <th>Info</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="course in myCourses" :key="course.cid">
+              <td>{{ course.cname }}</td>
+              <td>{{ course.ctime }}</td>
+              <td>{{ course.room }}</td>
+              <td>{{ course.semester }}</td>
+              <td>{{ course.info }}</td>
+              <td>
+                <button @click="dropCourse(course.cid)" class="btn btn-drop">Drop</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-
-
-      <div class="team-request-dashboard">
-        <h2>Team Request Dashboard</h2>
-        <button @click="goToTeamRequest">Go to Team Request Dashboard</button>
-      </div>
-
     </div>
 
     <div v-if="showAddModal" class="modal-overlay">

@@ -4,7 +4,6 @@
             <h1>Team Dashboard</h1>
             <div>
                 <button style="margin: 10px;" @click="showCreateTeamModal">Create New Team</button>
-                <button @click="goBack">Back</button>
             </div>
         </div>
         <div class="my-team-section">
@@ -17,6 +16,7 @@
                         <th>Members</th>
                         <th>Status</th>
                         <th>Actions</th>
+                        <th>Information</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -31,15 +31,17 @@
                             </span>
                         </td>
                         <td>
-                            <button class="btn-info" @click="showTeamDetails(team)">Details</button>
                             <button v-if="team.leader != Number(studentId)" class="btn-danger"
                                 @click="leaveTeam(team.id)">
                                 Leave Team
                             </button>
-                            <button v-if="isTeamLeader(team)" @click="showEditTeamModal(team)">Edit</button>
+                            <button style="margin-right: 5px;" v-if="isTeamLeader(team)" @click="showEditTeamModal(team)">Edit</button>
                             <button v-if="isTeamLeader(team)" class="btn-danger" @click="disbandTeam(team.id)">
-                                Disband Team
+                                Disband
                             </button>
+                        </td>
+                        <td>
+                            <button class="btn-info" @click="showTeamDetails(team)">Details</button>
                         </td>
                     </tr>
                 </tbody>
@@ -54,7 +56,7 @@
                         <th>Course</th>
                         <th>Members</th>
                         <th>Status</th>
-                        <th>Actions</th>
+                        <th>Information</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -123,10 +125,8 @@
 
         <div v-if="showDetailsModal" class="modal-overlay">
             <div class="modal-content">
-                <h2>Team Details</h2>
+                <h1>{{ selectedTeam.name }}</h1>
                 <div class="team-details" v-if="selectedTeam">
-                    <h3>{{ selectedTeam.name }}</h3>
-                    <p><strong>Team ID:</strong> {{ selectedTeam.tid }}</p>
                     <p><strong>Course:</strong> {{ selectedTeam.cid }} </p>
                     <p><strong>Leader:</strong> {{ selectedTeam.leaderName }}</p>
                     <p><strong>Status:</strong>
@@ -415,12 +415,7 @@ export default {
                 alert(errorMessage);
             }
         },
-        goBack() {
-            this.$router.push({
-                name: 'StudentInfo',
-                params: { sid: this.studentId }
-            });
-        },
+        
         async toggleRecruiting(teamId) {
             if (!confirm('Are you sure you want to toggle the recruiting status of this team?')) {
                 return;
@@ -470,7 +465,7 @@ export default {
 
 <style scoped>
 .team-dashboard-container {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 0px;
 }
@@ -503,7 +498,7 @@ export default {
 .team-details li {
   margin: 5px 0;
   padding: 5px;
-  background-color: #f8f9fa;
+  background-color: #f8f9fa9c;
   border-radius: 4px;
 }
 
@@ -621,11 +616,12 @@ button:hover {
 }
 
 .modal-content {
-    background-color: white;
-    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.822);
+    padding: 0 20px;
     border-radius: 8px;
     width: 90%;
     max-width: 500px;
+    max-height: 70%;
 }
 
 .form-group {
@@ -640,9 +636,9 @@ button:hover {
 .form-group input,
 .form-group select,
 .form-group textarea {
-    width: 100%;
+    width: 97%;
     padding: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid #ddddddf6;
     border-radius: 4px;
 }
 
