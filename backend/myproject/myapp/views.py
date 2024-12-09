@@ -131,7 +131,8 @@ def team_list(request):
         member_data = [
             {
                 'id': member.sid.sid,
-                'name': member.sid.user.username
+                'name': member.sid.user.username,
+                'email': member.sid.user.email
             } for member in members
         ]
         team_data.append({
@@ -141,7 +142,7 @@ def team_list(request):
             'leader': team.leader.sid,
             'leader_name': team.leader.user.username, 
             'cid': team.cid.cid,
-            'description': team.info,
+            'info': team.info,
             'members': member_data
         })
     return Response(team_data, status=status.HTTP_200_OK)
@@ -903,3 +904,21 @@ def cancel_team_request(request, request_id):
     
     team_request.delete()
     return Response({'status': 'success', 'message': 'Request cancelled'}, status=200)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_team(request, tid):
+    try:
+        jwt_authenticator = JWTAuthentication()
+        token = request.headers.get('Authorization').split(' ')[1]
+        validated_token = jwt_authenticator.get_validated_token(token)
+        current_user = jwt_authenticator.get_user(validated_token)
+        team = Team.objects.get(tid=tid)
+        if team.leader.user != current_user:
+            return Response({'error': 'Only team leader can update team information'}, status=status.HTTP_403_FORBIDDEN)
+        team.tname = request.data.get('name', team.tname)
+        team.info = request.data.get('info', team.info)
+        team.save()
+        return Response({'status': 'success', 'message': 'Team updated successfully'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
