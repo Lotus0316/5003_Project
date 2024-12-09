@@ -117,7 +117,7 @@
                     </div>
                     <div class="modal-buttons">
                         <button type="submit">Create</button>
-                        <button type="button" @click="closeModal">Cancel</button>
+                        <button type="button" @click="cancel">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -272,16 +272,22 @@ export default {
                     }
                 );
                 if (response.data.status === 'success') {
-                    alert('Team updated successfully!');
+                    this.$message({
+                        type: 'success',
+                        message: 'Team updated successfully!',
+                    });
                     this.closeEditModal();
                     this.closeDetailsModal();
                     await this.loadTeamData();
                 } else {
-                    alert(response.data.message || 'Failed to update team');
+                    this.$message({
+                        type: 'error',
+                        message: response.data.message || 'Failed to update team',
+                    });
                 }
             } catch (error) {
                 console.error('Error updating team:', error);
-                alert(error.response?.data?.error || 'Failed to update team');
+                this.$message.error(error.response?.data?.error || 'Failed to update team');
             }
         },
         async loadMyCourses() {
@@ -297,18 +303,33 @@ export default {
             }
         },
         async leaveTeam(teamId) {
-            if (confirm('Are you sure you want to leave this team?')) {
+            this.$confirm('Are you sure you want to leave this team?', 'Confirm Leave', {
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                type: 'warning',
+            })
+            .then(async () => {
                 const token = sessionStorage.getItem('access_token');
                 try {
                     await axios.post(`${API_BASE_URL}/api/teams/${teamId}/leave/`, {}, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     await this.loadTeamData();
+                    this.$message({
+                        type: 'success',
+                        message: 'Successfully left the team.',
+                    });
                 } catch (error) {
                     console.error('Failed to leave team:', error);
-                    alert(error.response?.data?.message || 'Failed to leave team');
+                    this.$message.error(error.response?.data?.message || 'Failed to leave team');
                 }
-            }
+            })
+            .catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: 'Leave team canceled',
+                });
+            });
         },
         showTeamDetails(team) {
             this.selectedTeam = team;
@@ -320,38 +341,53 @@ export default {
             this.selectedTeam = null;
         },
         async disbandTeam(teamId) {
-            if (!confirm('Are you sure you want to disband this team? This action cannot be undone.')) {
-                return;
-            }
-
-            const token = sessionStorage.getItem('access_token');
-            try {
-                const response = await axios.delete(
-                    `${API_BASE_URL}/api/teams/disband/${teamId}/`,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
+            this.$confirm('Are you sure you want to disband this team? This action cannot be undone.', 'Confirm Disband', {
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                type: 'warning',
+            })
+            .then(async () => {
+                const token = sessionStorage.getItem('access_token');
+                try {
+                    const response = await axios.delete(
+                        `${API_BASE_URL}/api/teams/disband/${teamId}/`,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
                         }
-                    }
-                );
+                    );
 
-                if (response.data.status === 'success') {
-                    await this.loadTeamData(); 
-                    alert('Team disbanded successfully');
+                    if (response.data.status === 'success') {
+                        await this.loadTeamData(); 
+                        this.$message({
+                            type: 'success',
+                            message: 'Team disbanded successfully',
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error disbanding team:', error);
+                    const errorMessage = error.response?.data?.error ||
+                        error.response?.data?.message ||
+                        'Failed to disband team';
+                    this.$message.error(errorMessage);
                 }
-            } catch (error) {
-                console.error('Error disbanding team:', error);
-                const errorMessage = error.response?.data?.error ||
-                    error.response?.data?.message ||
-                    'Failed to disband team';
-                alert(errorMessage);
-            }
+            })
+            .catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: 'Disbanding team canceled',
+                });
+            });
         },
         async createTeam() {
             const token = sessionStorage.getItem('access_token');
             try {
                 if (!this.newTeam.name || !this.newTeam.cid) {
-                    alert('Please fill in team name and select a course');
+                    this.$message({
+                        type: 'warning',
+                        message: 'Please fill in team name and select a course',
+                    });
                     return;
                 }
 
@@ -369,7 +405,10 @@ export default {
                 );
 
                 if (response.data.status === 'success') {
-                    alert('Team created successfully!');
+                    this.$message({
+                        type: 'success',
+                        message: 'Team created successfully!',
+                    });
                     this.closeModal();
                     await this.loadTeamData();
                     this.newTeam = {
@@ -378,79 +417,104 @@ export default {
                         info: ''
                     };
                 } else {
-                    alert(response.data.message || 'Failed to create team');
+                    this.$message({
+                        type: 'error',
+                        message: response.data.message || 'Failed to create team',
+                    });
                 }
             } catch (error) {
                 console.error('Error creating team:', error);
                 const errorMessage = error.response?.data?.error ||
                     error.response?.data?.message ||
                     'Failed to create team';
-                alert(errorMessage);
+                this.$message.error(errorMessage);
             }
         },
         async joinTeam(teamId) {
-            if (!confirm('Are you sure you want to join this team?')) {
-                return;
-            }
-            const token = sessionStorage.getItem('access_token');
-            try {
-                const response = await axios.post(
-                    `${API_BASE_URL}/api/teams/join/${teamId}/`,
-                    {},
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
+            this.$confirm('Are you sure you want to join this team?', 'Confirm Join', {
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                type: 'warning',
+            })
+            .then(async () => {
+                const token = sessionStorage.getItem('access_token');
+                try {
+                    const response = await axios.post(
+                        `${API_BASE_URL}/api/teams/join/${teamId}/`,
+                        {},
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
                         }
+                    );
+                    if (response.data.status === 'success') {
+                        this.$message({
+                            type: 'success',
+                            message: 'Successfully joined team',
+                        });
+                        await this.loadTeamData();
                     }
-                );
-                if (response.data.status === 'success') {
-                    alert('Successfully joined team');
-                    await this.loadTeamData();
+                } catch (error) {
+                    console.error('Failed to join team:', error);
+                    const errorMessage = error.response?.data?.error ||
+                        error.response?.data?.message ||
+                        'Failed to join team';
+                    this.$message.error(errorMessage);
                 }
-            } catch (error) {
-                console.error('Failed to join', error);
-                const errorMessage = error.response?.data?.error ||
-                    error.response?.data?.message ||
-                    'Failed to join';
-                alert(errorMessage);
-            }
+            })
+            .catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: 'Join team canceled',
+                });
+            });
         },
 
         async toggleRecruiting(teamId) {
-            if (!confirm('Are you sure you want to toggle the recruiting status of this team?')) {
-                return;
-            }
-            const token = sessionStorage.getItem('access_token');
-            try {
-                const response = await axios.post(
-                    `${API_BASE_URL}/api/teams/toggle-recruiting/${teamId}/`,
-                    {},
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
+            this.$confirm('Are you sure you want to toggle the recruiting status of this team?', 'Confirm Toggle', {
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                type: 'warning',
+            })
+            .then(async () => {
+                const token = sessionStorage.getItem('access_token');
+                try {
+                    const response = await axios.post(
+                        `${API_BASE_URL}/api/teams/${teamId}/toggle-recruiting/`,
+                        {},
+                        {
+                            headers: { 'Authorization': `Bearer ${token}` },
                         }
+                    );
+                    if (response.data.status === 'success') {
+                        this.$message({
+                            type: 'success',
+                            message: 'Team recruiting status updated!',
+                        });
+                        await this.loadTeamData();
                     }
-                );
-                if (response.data.status === 'success') {
-                    const team = this.myTeams.find(t => t.id === teamId);
-                    if (team) {
-                        team.isRecruiting = response.data.is_recruiting;
-                    }
-                    alert('Recruiting status updated successfully');
+                } catch (error) {
+                    console.error('Error toggling recruiting status:', error);
+                    this.$message.error(error.response?.data?.error || 'Failed to update recruiting status');
                 }
-            } catch (error) {
-                console.error('Error toggling recruiting status:', error);
-                const errorMessage = error.response?.data?.error ||
-                    error.response?.data?.message ||
-                    'Failed to toggle recruiting status';
-                alert(errorMessage);
-            }
+            })
+            .catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: 'Toggling recruiting status canceled',
+                });
+            });
         },
-
-        
         showCreateTeamModal() {
             this.showModal = true;
         },
+
+        cancel() {
+          this.shouldShowMessage = true; // 设置标志位为 true
+          this.closeModal();
+        },
+
         closeModal() {
             this.showModal = false;
             this.newTeam = {
@@ -458,10 +522,18 @@ export default {
                 cid: '',
                 info: ''
             };
+            if (this.shouldShowMessage) {
+                this.$message({
+                    message: 'Team creation has been canceled.',
+                    type: 'info'
+                });
+            }
+            this.shouldShowMessage = false;
         }
     }
 };
 </script>
+
 
 <style scoped>
 .team-dashboard-container {

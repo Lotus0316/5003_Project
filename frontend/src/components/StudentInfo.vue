@@ -58,48 +58,6 @@
           </div>
         </div>
     </div>
-
-    <div v-if="showAddModal" class="modal-overlay">
-      <div class="modal-content">
-        <h2>Add New Course</h2>
-        <form @submit.prevent="addCourse">
-          <div class="form-group">
-            <label for="courseId">Course ID</label>
-            <input v-model="newCourse.cid" type="text" id="courseId" required>
-          </div>
-          <div class="form-group">
-            <label for="courseName">Course Name</label>
-            <input v-model="newCourse.cname" type="text" id="courseName" required>
-          </div>
-          <div class="form-group">
-            <label for="semester">Semester</label>
-            <input v-model="newCourse.semester" type="text" id="semester" required>
-          </div>
-          <div class="form-group">
-            <label for="room">Room</label>
-            <input v-model="newCourse.room" type="text" id="room" required>
-          </div>
-          <div class="form-group">
-            <label for="time">Time</label>
-            <input v-model="newCourse.ctime" type="text" id="time" required>
-          </div>
-          <div class="form-group">
-            <label for="info">Info</label>
-            <input v-model="newCourse.info" type="text" id="info" required>
-          </div>
-          <div class="modal-buttons">
-            <button type="submit" class="btn">Add</button>
-            <button type="button" @click="closeAddModal" class="btn btn-cancel">Cancel</button>
-          </div>
-          <div v-if="successMessage" class="success-message">
-            {{ successMessage }}
-          </div>
-          <div v-if="errorMessage" class="error-message">
-            {{ errorMessage }}
-          </div>
-        </form>
-      </div>
-    </div>
     
     <div v-if="showEnrollModal" class="modal-overlay">
       <div class="modal-content" style="display: flexbox;">
@@ -118,7 +76,7 @@
           </div>
           <div class="modal-buttons">
             <button type="submit">Enroll</button>
-            <button type="button" class="btn-cancel" @click="closeEnrollModal">Cancel</button>
+            <button type="button" class="btn-cancel" @click="cancelEnrollment">Cancel</button>
           </div>
         </form>
       </div>
@@ -138,7 +96,8 @@
           sid: '',
           name: '',
           cur_major: '',
-          email: ''
+          email: '',
+          shouldShowMessage: false
         },
         showAddModal: false,
         showEnrollModal: false,
@@ -228,93 +187,93 @@
                 console.error('Error loading courses:', error);
             }
         },
-        showAddCourseModal() {
-            this.showAddModal = true;
-        },
         openEnrollModal() {
             this.showEnrollModal = true;
         },
-        closeAddModal() {
-            this.showAddModal = false;
-            this.newCourse = {
-                cid: '',
-                cname: '',
-                semester: '',
-                room: '',
-                ctime: ''
-            };
+
+        cancelEnrollment() {
+          this.shouldShowMessage = true; // 设置标志位为 true
+          this.closeEnrollModal();
         },
+
         closeEnrollModal() {
             this.showEnrollModal = false;
             this.selectedCourse = '';
-        },
-        async addCourse() {
-            const token = sessionStorage.getItem('access_token');
-            try {
-                const response = await axios.post(
-                    `${API_BASE_URL}/api/classes/add/`,
-                    this.newCourse,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-                this.successMessage = 'Course added successfully!';
-                this.errorMessage = '';
-                await this.loadAvailableCourses();
-                this.closeAddModal();
-            } catch (error) {
-                this.errorMessage = error.response?.data?.error || 'Failed to add course.';
-                this.successMessage = '';
-                console.error('Error adding course:', error);
+            if (this.shouldShowMessage) {
+              this.$message({
+                  message: 'Course enrollment has been canceled.',
+                  type: 'info'
+              });
             }
+            this.shouldShowMessage = false;
         },
+
         async enrollCourse() {
             console.log('Enroll Course clicked, Course ID:', this.selectedCourse);
             const token = sessionStorage.getItem('access_token');
             this.errorMessage = '';
             this.successMessage = '';
+
             if (!this.selectedCourse) {
-                this.errorMessage = 'Please select a course to enroll.';
+                this.$message.error('Please select a course to enroll.');
                 return;
             }
+
             try {
                 const response = await axios.post(
                     `${API_BASE_URL}/api/student/${this.student.sid}/enroll/`,
                     { cid: this.selectedCourse },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
+                
                 if (response.data.status === 'success') {
-                    this.successMessage = 'Course enrolled successfully!';
+                    this.$message.success('Course enrolled successfully!');
                     await this.loadMyCourses();
                     await this.loadAvailableCourses();
                     this.closeEnrollModal();
                 } else {
-                    this.errorMessage = response.data.message || 'Enrollment failed, please try again.';
+                    this.$message.error(response.data.message || 'Enrollment failed, please try again.');
                 }
             } catch (error) {
                 if (error.response && error.response.data && error.response.data.error) {
-                    this.errorMessage = error.response.data.error;
+                    this.$message.error(error.response.data.error);
                 } else {
-                    this.errorMessage = 'Enrollment failed, please try again.';
+                    this.$message.error('Enrollment failed, please try again.');
                 }
                 console.error('Enrollment error:', error);
             }
         },
+
         async dropCourse(courseId) {
-            if (!confirm('Are you sure you want to drop this course?')) {
-                return;
-            }
-            const token = sessionStorage.getItem('access_token');
-            try {
-                await axios.delete(
-                    `${API_BASE_URL}/api/student/${this.student.sid}/courses/drop/${courseId}/`,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-                alert('Course dropped successfully!');
-                await this.loadMyCourses();
-            } catch (error) {
-                alert(error.response?.data?.error || 'Failed to drop course.');
-                console.error('Error dropping course:', error);
-            }
-        },
+            this.$confirm('Are you sure you want to drop this course?', 'Confirm Drop', {
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                type: 'warning',
+            })
+            .then(async () => {
+                const token = sessionStorage.getItem('access_token');
+                try {
+                    await axios.delete(
+                        `${API_BASE_URL}/api/student/${this.student.sid}/courses/drop/${courseId}/`,
+                        { headers: { Authorization: `Bearer ${token}` } }
+                    );
+                    // 使用 Element UI 的消息提示替代 alert
+                    this.$message({
+                        type: 'success',
+                        message: 'Course dropped successfully!',
+                    });
+                    await this.loadMyCourses();
+                } catch (error) {
+                    this.$message.error(error.response?.data?.error || 'Failed to drop course.');
+                }
+            })
+            .catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: 'Course drop canceled',
+                });
+            });
+        }
     },
     computed: {
     availableCourses() {
@@ -354,7 +313,7 @@
     }
     
     button {
-    padding: 8px 16px;
+    padding: 5px 10px;
     background-color: #007bff;
     color: white;
     border: none;

@@ -58,17 +58,17 @@
                     </div>
                     <div class="modal-buttons">
                         <button type="submit">Submit</button>
-                        <button class="cancel-btn" type="button" @click="closeModal">Cancel</button>
+                        <button class="cancel-btn" type="button" @click="cancel">Cancel</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </template>
-  <script>
+<script>
   import axios from 'axios';
   import { API_BASE_URL } from '@/config/api';
-  
+
   export default {
     name: 'TeamRequest',
     data() {
@@ -82,7 +82,8 @@
         newRequest: {
           courseId: '',
           info: ''
-        }
+        },
+        shouldShowMessage: false
       };
     },
     async created() {
@@ -140,95 +141,114 @@
       async createRequest() {
         const token = sessionStorage.getItem('access_token');
         try {
-          await axios.post(
-            `${API_BASE_URL}/api/team-requests/create/`,
-            this.newRequest,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-          this.closeModal();
-          await this.loadRequests();
+            await axios.post(
+                `${API_BASE_URL}/api/team-requests/create/`,
+                this.newRequest,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            this.closeModal();
+            await this.loadRequests();
+            this.$message.success('Team request created successfully!');
         } catch (error) {
-        alert(error.response?.data?.error || 'Failed to create team request');
+            this.$message.error(error.response?.data?.error || 'Failed to create team request');
         }
       },
-  
+
       async inviteToTeam(requestId) {
-        // 弹窗确认是否继续
-        const confirmed = confirm('Are you sure you want to invite this student to your team?');
-        if (!confirmed) {
-            return; // 用户取消邀请
-        }
-
-        const token = sessionStorage.getItem('access_token');
-        if (!token) {
-            alert('Access token is missing. Please log in again.');
-            return;
-        }
-
-        try {
-        const response = await axios.post(
-            `${API_BASE_URL}/api/team-requests/${requestId}/invite/`,
-            {},
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        console.log('Response:', response.data); // 调试信息
-
-        // 修改：判断后端返回的 status 字段
-        if (response.data.status === 'success') {
-            this.$message.success(response.data.message || 'Successfully invited the student to your team');
-        } else {
-            this.$message.error('Operation failed. Unexpected response.');
-        }
-
-        // 加载更新后的数据
-        await this.loadRequests();
-        } catch (error) {
-        console.error('Error inviting student:', error);
-
-        // 修改：安全处理错误信息
-        const errorMsg = error.response?.data?.error || error.response?.data?.message || 'Failed to invite student';
-        this.$message.error(errorMsg);
-        }
-      },
-
-
-        isLeaderForCourse(courseId) {
-            return this.leaderCourses.includes(courseId);
-        },
-      
-        async cancelRequest(requestId) {
-            if (!confirm('Are you sure you want to cancel this request?')) {
+        this.$confirm('Are you sure you want to invite this student to your team?', 'Confirm Invitation', {
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            type: 'warning'
+        })
+        .then(async () => {
+            const token = sessionStorage.getItem('access_token');
+            if (!token) {
+                this.$message.error('Access token is missing. Please log in again.');
                 return;
             }
-            const token = sessionStorage.getItem('access_token');
+
             try {
-                await axios.delete(
-                    `${API_BASE_URL}/api/team-requests/${requestId}/cancel/`,
+                const response = await axios.post(
+                    `${API_BASE_URL}/api/team-requests/${requestId}/invite/`,
+                    {},
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
+
+                if (response.data.status === 'success') {
+                    this.$message.success(response.data.message || 'Successfully invited the student to your team');
+                } else {
+                    this.$message.error('Operation failed. Unexpected response.');
+                }
+
                 await this.loadRequests();
-                alert('Request has been successfully cancelled');
             } catch (error) {
-                console.error('Failed to cancel request:', error);
-                alert(error.response?.data?.error || 'Failed to cancel request');
+                console.error('Error inviting student:', error);
+                const errorMsg = error.response?.data?.error || error.response?.data?.message || 'Failed to invite student';
+                this.$message.error(errorMsg);
             }
-        },
-  
+        })
+        .catch(() => {
+            this.$message.info('Invitation canceled');
+        });
+      },
+
+      isLeaderForCourse(courseId) {
+        return this.leaderCourses.includes(courseId);
+      },
+    
+      async cancelRequest(requestId) {
+        try {
+            await this.$confirm('Are you sure you want to cancel this request?', 'Confirm Cancellation', {
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                type: 'warning'
+            });
+
+            const token = sessionStorage.getItem('access_token');
+            await axios.delete(
+                `${API_BASE_URL}/api/team-requests/${requestId}/cancel/`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            await this.loadRequests();
+            
+            this.$message.success('Request has been successfully cancelled');
+        } catch (error) {
+            if (error === 'cancel') {
+                this.$message.info('Request cancellation was cancelled');
+            } else {
+                console.error('Failed to cancel request:', error);
+                this.$message.error(error.response?.data?.error || 'Failed to cancel request');
+            }
+        }
+      },
+
       showCreateRequestModal() {
         this.showModal = true;
       },
-  
+
+      cancel() {
+        this.shouldShowMessage = true; // 设置标志位为 true
+        this.closeModal();
+      },
+
       closeModal() {
         this.showModal = false;
         this.newRequest = {
-          courseId: '',
-          info: ''
+            courseId: '',
+            info: ''
         };
+        if (this.shouldShowMessage) {
+          this.$message({
+            message: 'Request creation has been canceled.',
+            type: 'info'
+          });
+        }
+        this.shouldShowMessage = false;
       }
     }
   };
-  </script>
+</script>
   
   <style scoped>
   .team-request-container {
