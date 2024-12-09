@@ -23,7 +23,7 @@
                         <td>{{ request.courseId }}</td>
                         <td>{{ request.info }}</td>
                         <td>
-                            <button v-if="isLeaderForCourse(request.courseId)" @click="handleInvite(request.id)"
+                            <button v-if="isLeaderForCourse(request.courseId)" @click="inviteToTeam(request.id)"
                                 class="invite-btn">
                                 Invite
                             </button>
@@ -152,45 +152,45 @@
       },
   
       async inviteToTeam(requestId) {
-      if (!confirm('Are you sure you want to invite this student to your team?')) {
-          return;
+        // 弹窗确认是否继续
+        const confirmed = confirm('Are you sure you want to invite this student to your team?');
+        if (!confirmed) {
+            return; // 用户取消邀请
         }
+
         const token = sessionStorage.getItem('access_token');
+        if (!token) {
+            alert('Access token is missing. Please log in again.');
+            return;
+        }
+
         try {
-          await axios.post(
+        const response = await axios.post(
             `${API_BASE_URL}/api/team-requests/${requestId}/invite/`,
             {},
             { headers: { Authorization: `Bearer ${token}` } }
-          );
-          await this.loadRequests();
+        );
+
+        console.log('Response:', response.data); // 调试信息
+
+        // 修改：判断后端返回的 status 字段
+        if (response.data.status === 'success') {
+            this.$message.success(response.data.message || 'Successfully invited the student to your team');
+        } else {
+            this.$message.error('Operation failed. Unexpected response.');
+        }
+
+        // 加载更新后的数据
+        await this.loadRequests();
         } catch (error) {
-        alert(error.response?.data?.error || 'Failed to invite student');
+        console.error('Error inviting student:', error);
+
+        // 修改：安全处理错误信息
+        const errorMsg = error.response?.data?.error || error.response?.data?.message || 'Failed to invite student';
+        this.$message.error(errorMsg);
         }
       },
 
-
-        async handleInvite(requestId) {
-            const token = sessionStorage.getItem('access_token');
-            try {
-                await axios.post(
-                    `${API_BASE_URL}/api/team-requests/${requestId}/invite/`,
-                    {},
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-
-                await this.loadRequests();
-
-                this.$message.success('Successfully invited the student to your team');
-            } catch (error) {
-                console.error('Error inviting student:', error);
-
-                let errorMsg = 'Failed to invite student';
-                if (error.response && error.response.data && error.response.data.error) {
-                    errorMsg = error.response.data.error;
-                }
-                this.$message.error(errorMsg);
-            }
-        },
 
         isLeaderForCourse(courseId) {
             return this.leaderCourses.includes(courseId);
