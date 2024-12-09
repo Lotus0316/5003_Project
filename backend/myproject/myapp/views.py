@@ -884,3 +884,22 @@ def invite_from_request(request, request_id):
             'status': 'error',
             'message': str(e)
         }, status=status.HTTP_400_BAD_REQUEST)
+        
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def cancel_team_request(request, request_id):
+    jwt_authenticator = JWTAuthentication()
+    try:
+        token = request.headers.get('Authorization').split(' ')[1]
+        validated_token = jwt_authenticator.get_validated_token(token)
+        current_user = jwt_authenticator.get_user(validated_token)
+    except Exception:
+        return Response({'error': 'Invalid token or unauthorized access'}, status=403)
+    
+    try:
+        team_request = TeamRequest.objects.get(id=request_id, sid=current_user.student_profile)
+    except TeamRequest.DoesNotExist:
+        return Response({'error': 'Request not found'}, status=404)
+    
+    team_request.delete()
+    return Response({'status': 'success', 'message': 'Request cancelled'}, status=200)
