@@ -7,7 +7,7 @@
     @select="handleSelect"
     >
     <el-menu-item index="0" class="no-hover">
-        <img style="width: 100px;" src="../img/CityULogo.webp" alt="logo" />
+        <img style="width: 90px;" src="../img/CityULogo.webp" alt="logo" />
         <div style="font-size: large; margin-left: 10px; margin-top: 12px; margin-bottom: 0;">
         Team Formation System
         </div>
@@ -135,7 +135,7 @@
         border-right: 1px solid var(--el-menu-border-color);
         box-sizing: border-box;
         list-style: none;
-        margin: 8px 0px ;
+        margin: 0px ;
         padding-left: 0;
         position: relative;
     }

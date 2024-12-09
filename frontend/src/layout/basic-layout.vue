@@ -34,7 +34,7 @@ export default {
 
 .el-header {
     --el-header-padding: 0;
-    --el-header-height: 70px;
+    --el-header-height: 60px;
     box-sizing: border-box;
     flex-shrink: 0;
     height: var(--el-header-height);
