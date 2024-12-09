@@ -36,6 +36,7 @@
                                 @click="leaveTeam(team.id)">
                                 Leave Team
                             </button>
+                            <button v-if="isTeamLeader(team)" @click="showEditTeamModal(team)">Edit</button>
                             <button v-if="isTeamLeader(team)" class="btn-danger" @click="disbandTeam(team.id)">
                                 Disband Team
                             </button>
@@ -106,11 +107,7 @@
                         <label for="teamName">Team Name *</label>
                         <input type="text" v-model="newTeam.name" id="teamName" required placeholder="Enter team name">
                     </div>
-                    <div class="form-group">
-                        <label for="teamDescription">Description</label>
-                        <textarea v-model="newTeam.description" id="teamDescription" rows="3"
-                            placeholder="Enter team description"></textarea>
-                    </div>
+
                     <div class="form-group">
                         <label for="teamInfo">Info</label>
                         <textarea v-model="newTeam.info" id="teamInfo" rows="3"
@@ -130,26 +127,45 @@
                 <div class="team-details" v-if="selectedTeam">
                     <h3>{{ selectedTeam.name }}</h3>
                     <p><strong>Team ID:</strong> {{ selectedTeam.tid }}</p>
-                    <p><strong>Course:</strong> {{ selectedTeam.cid }} - {{ selectedTeam.name }}</p>
+                    <p><strong>Course:</strong> {{ selectedTeam.cid }} </p>
                     <p><strong>Leader:</strong> {{ selectedTeam.leaderName }}</p>
                     <p><strong>Status:</strong>
                         <span class="badge" :class="selectedTeam.isRecruiting ? 'recruiting' : 'closed'">
                             {{ selectedTeam.isRecruiting ? 'Recruiting' : 'Closed' }}
                         </span>
                     </p>
-                    <p><strong>Description:</strong> {{ selectedTeam.description }}</p>
                     <p><strong>Info:</strong> {{ selectedTeam.info }}</p>
                     <p><strong>Members ({{ selectedTeam.members.length }}):</strong></p>
                     <ul>
                         <li v-for="member in selectedTeam.members" :key="member.id">
-                            {{ member.name }}
-                            <span v-if="member.id === selectedTeam.leader">(Leader)</span>
+                            {{ member.name }} - {{ member.email }}
                         </li>
                     </ul>
                     <div class="modal-buttons">
                         <button @click="closeDetailsModal">Close</button>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div v-if="showEditModal" class="modal-overlay">
+            <div class="modal-content">
+                <h2>Edit Team</h2>
+                <form @submit.prevent="updateTeam">
+                    <div class="form-group">
+                        <label for="editTeamName">Team Name *</label>
+                        <input type="text" v-model="editedTeam.name" id="editTeamName" required
+                            placeholder="Enter team name">
+                    </div>
+                    <div class="form-group">
+                        <label for="editTeamInfo">Info</label>
+                        <textarea v-model="editedTeam.info" id="editTeamInfo" rows="3"
+                            placeholder="Enter additional info"></textarea>
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="submit">Save</button>
+                        <button type="button" @click="closeEditModal">Cancel</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -173,10 +189,16 @@ export default {
             selectedTeam: null,
             myCourses: [],
             teamsByCourse: new Map(),
+            showEditModal: false,
+            editedTeam: {
+                id: '',
+                name: '',
+                info: '',
+            },
             newTeam: {
                 name: '',
                 cid: '',
-                description: ''
+                info: ''
             }
         };
     },
@@ -188,10 +210,6 @@ export default {
         this.studentId = this.$route.params.sid;
         await this.loadMyCourses();
         await this.loadTeamData();
-        await Promise.all([
-        this.loadMyCourses(),
-        this.loadTeamData(),
-    ]);
     },
     methods: {
         async loadTeamData() {
@@ -210,7 +228,7 @@ export default {
                     leader: team.leader,
                     leaderName: team.leader_name, 
                     cid: team.cid,
-                    description: team.description
+                    info: team.info
                 }));
 
                 this.myTeams = allTeams.filter(team =>
@@ -232,6 +250,39 @@ export default {
         },
         isTeamLeader(team) {
             return String(team.leader) === String(this.studentId);
+        },
+        showEditTeamModal(team) {
+            this.editedTeam = { ...team };
+            this.showEditModal = true;
+        },
+        closeEditModal() {
+            this.showEditModal = false;
+        },
+        async updateTeam() {
+            const token = sessionStorage.getItem('access_token');
+            try {
+                const response = await axios.post(
+                    `${API_BASE_URL}/api/teams/update/${this.editedTeam.id}/`,
+                    {
+                        name: this.editedTeam.name,
+                        info: this.editedTeam.info,
+                    },
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }
+                );
+                if (response.data.status === 'success') {
+                    alert('Team updated successfully!');
+                    this.closeEditModal();
+                    this.closeDetailsModal();
+                    await this.loadTeamData();
+                } else {
+                    alert(response.data.message || 'Failed to update team');
+                }
+            } catch (error) {
+                console.error('Error updating team:', error);
+                alert(error.response?.data?.error || 'Failed to update team');
+            }
         },
         async loadMyCourses() {
             const token = sessionStorage.getItem('access_token');
@@ -309,7 +360,7 @@ export default {
                     {
                         name: this.newTeam.name,
                         cid: this.newTeam.cid,
-                        description: this.newTeam.description || ''
+                        info: this.newTeam.info || ''
                     },
                     {
                         headers: {'Authorization': `Bearer ${token}`},
@@ -324,7 +375,7 @@ export default {
                     this.newTeam = {
                         name: '',
                         cid: '',
-                        description: ''
+                        info: ''
                     };
                 } else {
                     alert(response.data.message || 'Failed to create team');
@@ -410,7 +461,7 @@ export default {
             this.newTeam = {
                 name: '',
                 cid: '',
-                description: ''
+                info: ''
             };
         }
     }

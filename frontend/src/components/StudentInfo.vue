@@ -108,7 +108,7 @@
               <option v-for="course in availableCourses" 
                       :key="course.cid" 
                       :value="course.cid">
-                {{ course.cname }}
+                {{ course.cname }} ({{ course.cid }})
               </option>
             </select>
           </div>

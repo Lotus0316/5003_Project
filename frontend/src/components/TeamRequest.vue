@@ -29,6 +29,10 @@
                                 class="invite-btn">
                                 Invite
                             </button>
+                            <button v-if="isRequestOwner(request.studentId)" @click="cancelRequest(request.id)"
+                                class="cancel-btn">
+                                Cancel
+                            </button>
                         </td>
                     </tr>
                 </tbody>
@@ -44,7 +48,7 @@
                         <select v-model="newRequest.courseId" id="courseSelect" required>
                             <option value="">Select Course</option>
                             <option v-for="course in myCourses" :key="course.cid" :value="course.cid">
-                                {{ course.cname }}
+                                {{ course.cname }} ({{ course.cid }})
                             </option>
                         </select>
                     </div>
@@ -127,12 +131,13 @@
           this.myTeams = response.data;
           const leaderTeams = this.myTeams.filter(team => String(team.leader) === String(this.studentId));
           this.leaderCourses = leaderTeams.map(team => team.cid);
-          console.log('Leader courses:', this.leaderCourses);
         } catch (error) {
         console.error('Error loading teams:', error);
         }
       },
-      
+      isRequestOwner(requestOwnerID) {
+        return String(requestOwnerID) === this.studentId;
+      },
       async createRequest() {
         const token = sessionStorage.getItem('access_token');
         try {
@@ -192,7 +197,24 @@
         isLeaderForCourse(courseId) {
             return this.leaderCourses.includes(courseId);
         },
-  
+      
+        async cancelRequest(requestId) {
+            if (!confirm('Are you sure you want to cancel this request?')) {
+                return;
+            }
+            const token = sessionStorage.getItem('access_token');
+            try {
+                await axios.delete(
+                    `${API_BASE_URL}/api/team-requests/${requestId}/cancel/`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                await this.loadRequests();
+                alert('Request has been successfully cancelled');
+            } catch (error) {
+                console.error('Failed to cancel request:', error);
+                alert(error.response?.data?.error || 'Failed to cancel request');
+            }
+        },
       goBack() {
         this.$router.push({
           name: 'StudentInfo',
@@ -324,4 +346,17 @@
     margin-left: 10px;
     padding: 8px 16px;
   }
+
+  .cancel-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cancel-btn:hover {
+    background-color: #c82333;
+}
   </style>
