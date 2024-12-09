@@ -1,22 +1,27 @@
 <template>
   <div id="app">
-    <router-view></router-view>
+    <BasicLayout/>
     <!-- <test /> -->
   </div>
 </template>
 
 <script>
 import test from './components/test.vue';
+import BasicLayout from './layout/basic-layout.vue';
 
 export default {
   name: 'App',
   components: {
-    test
+    test,
+    BasicLayout
   }
 };
 </script>
 
 <style>
-/* 你可以在这里自定义应用程序的全局样式 */
+body {
+    margin: 0;
+}
+
 </style>
   

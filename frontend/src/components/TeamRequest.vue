@@ -2,8 +2,10 @@
     <div class="team-request-container">
         <div class="header">
             <h1>Team Request Dashboard</h1>
-            <button @click="showCreateRequestModal">Create Request</button>
-            <button @click="goBack">Back</button>
+            <div>
+              <button style="margin: 10px;" @click="showCreateRequestModal">Create Request</button>
+              <button @click="goBack">Back</button>
+            </div>
         </div>
 
         <div class="requests-list">
@@ -237,7 +239,7 @@
   .requests-table td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #f8f9fa9f;
   }
   
   .modal-overlay {
@@ -258,6 +260,30 @@
     border-radius: 8px;
     width: 90%;
     max-width: 500px;
+  }
+
+  button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  button:hover {
+      background-color: #0056b3;
+  }
+
+  .btn-disabled {
+    background-color: #6c757d;
+    color: white;
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
+  .btn-disabled:hover {
+    background-color: #6c757d;
   }
   
   .btn-primary {

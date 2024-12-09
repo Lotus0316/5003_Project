@@ -2,8 +2,10 @@
     <div class="team-dashboard-container">
         <div class="header">
             <h1>Team Dashboard</h1>
-            <button @click="showCreateTeamModal">Create New Team</button>
-            <button @click="goBack">Back</button>
+            <div>
+                <button style="margin: 10px;" @click="showCreateTeamModal">Create New Team</button>
+                <button @click="goBack">Back</button>
+            </div>
         </div>
         <div class="my-team-section">
             <h2>My Teams</h2>
@@ -419,7 +421,7 @@ export default {
 .team-dashboard-container {
     max-width: 900px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 0px;
 }
 
 .header {
@@ -487,19 +489,21 @@ button:hover {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
-    background: white;
+    background: rgba(255, 255, 255, 0.377);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 .teams-table th,
 .teams-table td {
     padding: 12px 15px;
-    text-align: left;
+    text-align: center;
     border-bottom: 1px solid #ddd;
 }
 
 .teams-table th {
-    background-color: #f8f9fa;
+    background-color: #f8f9fa9f;
     font-weight: 600;
 }
 

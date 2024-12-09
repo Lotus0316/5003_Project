@@ -335,11 +335,11 @@
   </script>
   
   <style scoped>
-  .student-info-container {
+  /* .student-info-container {
     max-width: 600px;
     margin: 0 auto;
     padding: 20px;
-  }
+  } */
   .team-dashboard {
     margin-top: 20px;
     }

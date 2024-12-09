@@ -122,7 +122,7 @@
 /* 你可以在这里自定义应用程序的全局样式 */
 .login-container {
   max-width: 400px;
-  margin: 0 auto;
+  margin: 10vh auto;
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
