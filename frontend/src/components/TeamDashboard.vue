@@ -199,7 +199,8 @@ export default {
                 name: '',
                 cid: '',
                 info: ''
-            }
+            },
+            
         };
     },
     computed: {
@@ -391,6 +392,44 @@ export default {
                     return;
                 }
 
+                // Check existing team requests
+                const requestsResponse = await axios.get(
+                    `${API_BASE_URL}/api/team-requests/`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+
+                const existingRequest = requestsResponse.data.find(
+                    request => request.courseId === this.newTeam.cid &&
+                        String(request.studentId) === this.studentId
+                );
+
+                if (existingRequest) {
+                    try {
+                        await this.$confirm(
+                            'You have an existing team request for this course. Creating a team will cancel your request. Continue?',
+                            'Confirm Team Creation',
+                            {
+                                confirmButtonText: 'Yes',
+                                cancelButtonText: 'No',
+                                type: 'warning'
+                            }
+                        );
+
+                        // Cancel existing request
+                        await axios.delete(
+                            `${API_BASE_URL}/api/team-requests/${existingRequest.id}/cancel/`,
+                            { headers: { Authorization: `Bearer ${token}` } }
+                        );
+                    } catch (error) {
+                        if (error === 'cancel') {
+                            this.$message.info('Team creation cancelled');
+                            return;
+                        }
+                        throw error;
+                    }
+                }
+
+                // Create team
                 const response = await axios.post(
                     `${API_BASE_URL}/api/teams/create/`,
                     {
@@ -399,7 +438,7 @@ export default {
                         info: this.newTeam.info || ''
                     },
                     {
-                        headers: {'Authorization': `Bearer ${token}`},
+                        headers: { 'Authorization': `Bearer ${token}` },
                         withCredentials: true
                     }
                 );
