@@ -520,7 +520,7 @@ export default {
                 const token = sessionStorage.getItem('access_token');
                 try {
                     const response = await axios.post(
-                        `${API_BASE_URL}/api/teams/${teamId}/toggle-recruiting/`,
+                        `${API_BASE_URL}/api/teams/toggle-recruiting/${teamId}/`,
                         {},
                         {
                             headers: { 'Authorization': `Bearer ${token}` },
