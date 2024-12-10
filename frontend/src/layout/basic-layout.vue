@@ -10,7 +10,7 @@
             </el-main>
             </el-container>
             <el-footer style="display: flex; justify-content: end; align-items: flex-start">
-                <div class="logout-icon" @click="handleLogout">
+                <div class="logout-icon" v-if="!isLoginRoute" @click="handleLogout">
                     Log out
                 </div>
             </el-footer>
@@ -24,6 +24,11 @@ import GlobalHeader from '../components/GlobalHeader.vue'
 export default {
     components: {
     GlobalHeader,
+  },
+  computed: {
+      isLoginRoute() {
+          return this.$route.path === '/login';
+      }
   },
   methods: {
     handleLogout() {

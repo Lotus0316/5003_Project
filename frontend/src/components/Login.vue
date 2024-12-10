@@ -76,6 +76,9 @@
           if (!access || !refresh || !sid || !username) {
             throw new Error('Invalid server response');
           }
+
+          // const authStore = useAuthStore(); // 确保在组件上下文中调用
+          // authStore.setAuthData({ access, refresh, sid, username });
   
           // 存储用户信息
           sessionStorage.setItem('access_token', access);
@@ -83,7 +86,7 @@
           sessionStorage.setItem('isAuthenticated', 'true');
           sessionStorage.setItem('user_sid', sid.toString());
           sessionStorage.setItem('username', username);
-  
+          
           // 显示成功消息
           this.loginMessage = `Login successful. Welcome, ${username}!`;
   

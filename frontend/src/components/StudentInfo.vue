@@ -1,5 +1,5 @@
 <template>
-  <div style="max-width: 1600px;">
+  <div style="max-width: 2600px;">
     <div class="hori-wrap">
       <div class="student-info-container">
         <h1 style="font-size: x-large;">Welcome, {{ student.name }}</h1>
@@ -301,7 +301,7 @@
     font-size: large;
   }
   .course-management {
-    margin: 0 auto auto 40px;
+    margin: 0 auto auto auto;
     padding: 20px;
   }
   .team-dashboard {

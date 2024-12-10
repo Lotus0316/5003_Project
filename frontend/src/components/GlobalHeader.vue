@@ -12,10 +12,10 @@
         Team Formation System
         </div>
     </el-menu-item>
-    <el-menu-item index="1" @click="goToStudentInfo">Student Information</el-menu-item>
-    <el-menu-item index="2" @click="goToTeamDashboard">My Team</el-menu-item>
-    <el-menu-item index="3" @click="goToTeamRequest">Team Application</el-menu-item>
-    <el-menu-item index="4"><el-badge is-dot :offset="[0, 15]"><el-icon style="font-size: 35px;"><Message /></el-icon></el-badge></el-menu-item>
+    <el-menu-item v-if="!isLoginRoute" index="1" @click="goToStudentInfo">Student Information</el-menu-item>
+    <el-menu-item v-if="!isLoginRoute" index="2" @click="goToTeamDashboard">My Team</el-menu-item>
+    <el-menu-item v-if="!isLoginRoute" index="3" @click="goToTeamRequest">Team Application</el-menu-item>
+    <!-- <el-menu-item index="4"><el-badge is-dot :offset="[0, 15]"><el-icon style="font-size: 35px;"><Message /></el-icon></el-badge></el-menu-item> -->
     </el-menu>
 
   </template>
@@ -25,7 +25,10 @@
     import { useRouter } from 'vue-router'
     import axios from 'axios'
     import { API_BASE_URL } from '@/config/api'
-    
+    import { computed } from 'vue';
+    import { useRoute } from 'vue-router';
+
+
     const student = ref({
         sid: '',
         name: '',
@@ -34,6 +37,9 @@
     })
     
     const router = useRouter()
+    const route = useRoute()
+
+    const isLoginRoute = computed(() => route.path === '/login');
     
     const sid = sessionStorage.getItem('user_sid')
     const token = sessionStorage.getItem('access_token')
