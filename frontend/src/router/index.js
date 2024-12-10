@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../components/Login.vue';
 import StudentInfo from '../components/StudentInfo.vue';
 import NoPermission from '../components/NoPermission.vue';
+import TeamDashboard from '../components/TeamDashboard.vue';
+import TeamRequest from '../components/TeamRequest.vue'; 
+
 
 const routes = [
   {
@@ -26,6 +29,24 @@ const routes = [
   {
     path: '/:pathMatch(.*)*',
     redirect: '/login'
+  },
+  {
+    path: '/team-dashboard/:sid',
+    name: 'TeamDashboard',
+    component: TeamDashboard,
+    props: true,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/team-request/:sid',
+    name: 'TeamRequest',
+    component: TeamRequest,
+    props: true,
+    meta: {
+      requiresAuth: true
+    }
   }
 ];
 

@@ -50,4 +50,12 @@ CREATE TABLE IF NOT EXISTS "Team_Request" (
 	FOREIGN KEY("cid") REFERENCES "Class"("cid"),
 	FOREIGN KEY("sid") REFERENCES "Student"("sid")
 );
+CREATE TABLE IF NOT EXISTS "VERIFY" (
+	"tid"	INTEGER,
+	"aid"	INTEGER,
+	"is_invite" INTEGER,
+	PRIMARY KEY("tid","aid","is_invite"),
+	FOREIGN KEY("aid") REFERENCES "Student"("sid"),
+	FOREIGN KEY("tid") REFERENCES "Team"("tid")
+);
 COMMIT;
